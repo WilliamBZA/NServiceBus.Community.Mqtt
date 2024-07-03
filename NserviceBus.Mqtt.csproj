@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>NServiceBus.Community.Mqtt</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>WilliamBZA</Authors>
+    <PackageTags>NServiceBus; Mqtt; IoT; Microservice;</PackageTags>
+    <Description>
+      This client library enables NServiceBus endpoints to communicate with MQTT brokers. Library does not support delayed delivery.
+    </Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="4.3.3.952" />
+    <PackageReference Include="NServiceBus" Version="8.1.6" />
+  </ItemGroup>
+
+</Project>
