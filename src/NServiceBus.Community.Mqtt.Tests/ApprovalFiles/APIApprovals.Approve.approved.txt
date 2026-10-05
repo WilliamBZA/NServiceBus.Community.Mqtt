@@ -1,0 +1,16 @@
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NServiceBus.Community.Mqtt.AcceptanceTests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NServiceBus.Community.Mqtt.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NServiceBus.Community.Mqtt.TransportTests")]
+namespace NServiceBus
+{
+    public class MqttTransport : NServiceBus.Transport.TransportDefinition
+    {
+        public MqttTransport(string server, int port = 1883) { }
+        public int Port { get; }
+        public string Server { get; }
+        public System.TimeSpan SessionExpiry { get; set; }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
+        public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
+        public void SubscribeTo(string topic) { }
+    }
+}

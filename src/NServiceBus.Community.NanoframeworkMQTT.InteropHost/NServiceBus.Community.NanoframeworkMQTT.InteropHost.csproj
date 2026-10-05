@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>InteropHost</RootNamespace>
+    <!-- A console tool: its checks have their own timeouts and are not cancellable. -->
+    <NoWarn>$(NoWarn);PS0018</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Community.Mqtt\NServiceBus.Community.Mqtt.csproj" />
+  </ItemGroup>
+
+  <!-- The contracts are shared as source with the sample device app, so both sides use the same namespace-qualified names. -->
+  <ItemGroup>
+    <Compile Include="..\Interop\InteropContracts.cs" Link="Interop\InteropContracts.cs" />
+  </ItemGroup>
+
+</Project>

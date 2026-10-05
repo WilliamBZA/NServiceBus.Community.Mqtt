@@ -1,0 +1,26 @@
+<Project>
+
+  <!-- These settings apply to the .NET projects only. The nanoFramework projects (.nfproj) live under src/ too and must not pick them up. -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <ParticularAnalyzersVersion Condition="'$(ParticularAnalyzersVersion)' == ''">2.1.4</ParticularAnalyzersVersion>
+  </PropertyGroup>
+
+  <!-- Only the production project fails the build on warnings. The test projects compile suite sources that this repository does not own. -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(MSBuildProjectName)' == 'NServiceBus.Community.Mqtt'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(CI)' != ''">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <PackageReference Include="Particular.Analyzers" Version="$(ParticularAnalyzersVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

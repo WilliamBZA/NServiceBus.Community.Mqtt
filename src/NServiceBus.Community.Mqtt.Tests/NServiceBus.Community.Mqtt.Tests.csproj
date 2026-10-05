@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="NUnit" Version="4.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="Particular.Approvals" Version="2.0.1" />
+    <PackageReference Include="PublicApiGenerator" Version="11.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Community.Mqtt\NServiceBus.Community.Mqtt.csproj" />
+  </ItemGroup>
+
+  <!-- Shared with the nanoFramework device projects, which see the same contracts and golden payloads. -->
+  <ItemGroup>
+    <Compile Include="..\Interop\InteropContracts.cs" Link="Interop\InteropContracts.cs" />
+    <Compile Include="..\Interop\MappingCases.cs" Link="Interop\MappingCases.cs" />
+    <Compile Include="..\Interop\WirePayloads.cs" Link="Interop\WirePayloads.cs" />
+    <Compile Include="..\Interop\WireCases.cs" Link="Interop\WireCases.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>

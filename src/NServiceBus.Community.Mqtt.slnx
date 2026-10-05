@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="NServiceBus.Community.NanoframeworkMQTT.InteropHost/NServiceBus.Community.NanoframeworkMQTT.InteropHost.csproj" />
+  <Project Path="NServiceBus.Community.Mqtt.AcceptanceTests/NServiceBus.Community.Mqtt.AcceptanceTests.csproj" />
+  <Project Path="NServiceBus.Community.Mqtt.Tests/NServiceBus.Community.Mqtt.Tests.csproj" />
+  <Project Path="NServiceBus.Community.Mqtt.TransportTests/NServiceBus.Community.Mqtt.TransportTests.csproj" />
+  <Project Path="NServiceBus.Community.Mqtt/NServiceBus.Community.Mqtt.csproj" />
+</Solution>

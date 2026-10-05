@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <!-- Approved exclusions: tests that cannot pass because the transport has one consumer per queue (no scale-out).
+         Every entry needs a row in src/KNOWN-EXCLUSIONS.md, and the unit test KnownExclusionsTests checks that the two agree.
+         Separate entries with &amp; (the filter's AND, escaped for XML). Suite sources are never edited. -->
+    <TestCaseFilter>FullyQualifiedName!~When_publishing_to_scaled_out_subscribers</TestCaseFilter>
+  </RunConfiguration>
+</RunSettings>

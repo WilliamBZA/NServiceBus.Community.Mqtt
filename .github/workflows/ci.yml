@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      # global.json pins the 10.x SDK, which also runs the net10.0 tests, so no other runtime is needed.
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build src/NServiceBus.Community.Mqtt.slnx --configuration Release
+
+      # The transport and acceptance tests start their own Mosquitto 2.x container (ubuntu-latest has Docker), so there is no broker step.
+      - name: Unit tests
+        run: dotnet test src/NServiceBus.Community.Mqtt.Tests --configuration Release --no-build --logger "trx;LogFileName=unit-tests.trx" --results-directory TestResults
+
+      - name: Transport tests
+        run: dotnet test src/NServiceBus.Community.Mqtt.TransportTests --configuration Release --no-build --logger "trx;LogFileName=transport-tests.trx" --results-directory TestResults
+
+      - name: Acceptance tests
+        run: dotnet test src/NServiceBus.Community.Mqtt.AcceptanceTests --configuration Release --no-build --logger "trx;LogFileName=acceptance-tests.trx" --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn
+
+  # The nanoFramework projects (.nfproj) build only with Visual Studio's MSBuild and the nanoFramework build components, so they get their own Windows job.
+  nanoframework:
+    name: Build and test the nanoFramework device package
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up the nanoFramework build components
+        uses: nanoframework/nanobuild@v1
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore
+        run: nuget restore src/NServiceBus.Community.NanoframeworkMQTT.sln
+
+      - name: Build
+        run: msbuild src/NServiceBus.Community.NanoframeworkMQTT.sln /p:Configuration=Release /nologo /verbosity:minimal
+
+      # The device tests run on the nanoCLR virtual device. The test adapter ships in the nanoFramework.TestFramework package, and downloads the nanoCLR instance itself.
+      # There are two test assemblies, both called NFUnitTest because the launcher loads that name: a nanoFramework assembly can hold only so many strings.
+      # The adapter finds the project of a test assembly two folders above it, so the second assembly is built into bin\EndpointRelease.
+      - name: Device unit tests
+        shell: pwsh
+        run: |
+          $vstest = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find "**\vstest.console.exe" | Select-Object -First 1
+          $tests = "src\NServiceBus.Community.NanoframeworkMQTT.Tests"
+          $adapter = Join-Path (Get-ChildItem src\packages -Directory -Filter "nanoFramework.TestFramework.*" | Select-Object -First 1).FullName "lib\net48"
+          $failed = $false
+          foreach ($assembly in @("bin\Release", "bin\EndpointRelease")) {
+            $name = if ($assembly -like "*Endpoint*") { "endpoint" } else { "codec" }
+            & $vstest "$tests\$assembly\NFUnitTest.dll" /Settings:"$tests\nano.runsettings" /TestAdapterPath:$adapter /Logger:"trx;LogFileName=device-tests-$name.trx" /ResultsDirectory:TestResults
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Pack the device package
+        run: nuget pack src/NServiceBus.Community.NanoframeworkMQTT/NServiceBus.Community.NanoframeworkMQTT.nuspec -OutputDirectory artifacts
+
+      - name: Upload device test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn
+
+      - name: Upload the device package
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-package
+          path: artifacts/*.nupkg
+          if-no-files-found: error

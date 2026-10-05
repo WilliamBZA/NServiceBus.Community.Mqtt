@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- The suite sources (NServiceBus.AcceptanceTests.Sources) were written without nullable annotations and are not ours to edit.
+         Files in this project that want nullable analysis opt in with #nullable enable. -->
+    <Nullable>disable</Nullable>
+    <!-- The same goes for the analyzer rules the suite sources break. Only rules that fire in the suite sources are listed. -->
+    <NoWarn>$(NoWarn);NSB0002;PS0013;PS0018</NoWarn>
+    <!-- dotnet test and CI pick this up automatically. It holds the approved exclusions (see src/KNOWN-EXCLUSIONS.md). -->
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)/acceptance.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="NServiceBus.AcceptanceTesting" Version="10.2.9" />
+    <PackageReference Include="NServiceBus.AcceptanceTests.Sources" Version="10.2.9" />
+    <PackageReference Include="NUnit" Version="4.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="Testcontainers" Version="4.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Community.Mqtt\NServiceBus.Community.Mqtt.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The broker fixture is shared with the transport tests project, which owns it. Each project still starts its own broker,
+         because each runs in its own process. -->
+    <Compile Include="..\NServiceBus.Community.Mqtt.TransportTests\TestBroker\*.cs" LinkBase="TestBroker" />
+    <Content Include="..\mosquitto\mosquitto.conf" Link="mosquitto.conf" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>
